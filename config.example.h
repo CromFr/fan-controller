@@ -2,38 +2,46 @@
 #define __INCLUDED_CONFIG__
 #include "fan.h"
 
-#define PIN_BUTTON 2
-#define PIN_BUZZER A1
+int buttonPin = 2;
+int buzzerPin = A1;// beep beep beep. Must be analog or PWM compatible. -1 to disable beeping.
+int ledPin = LED_BUILTIN;//Blink when in low speed mode
 
 
-
-TempProbe probes[] = {
-	TempProbe{
-		name: "Water",
-		pin: A0
+// List of temperature sensors
+Sensor sensors[] = {
+	Sensor{
+		name: "Water", // Sensor name used when sending its temperature to serial
+		pin: A0, // Sensor pin. Must be analog
 	},
 };
-size_t probesLength = sizeof(probes) / sizeof(TempProbe);
+size_t sensorsLength = sizeof(sensors) / sizeof(Sensor);
 
 
-Point defaultCurve[] = {
+// This is an example curve for speed control
+Fan::Point defaultCurve[] = {
 	//  temp °C => speed %
-	Point{ 30.0, 0 },
-	Point{ 30.0, 30 },
-	Point{ 45.0, 60 },
-	Point{ 50.0, 80 },
-	Point{ 55.0, 100 },
+	Fan::Point{ 30.0, 0 },
+	Fan::Point{ 30.0, 30 },
+	Fan::Point{ 45.0, 60 },
+	Fan::Point{ 50.0, 80 },
+	Fan::Point{ 55.0, 100 },
 };
+size_t defaultCurveLength = sizeof(defaultCurve) / sizeof(Fan::Point);
 
-
+// List of fans
 Fan fans[] = {
 	Fan{
+		// Fan name used when sending its speed to serial
 		name: "WaterRadiator",
+		// Fan pin. Must be PWM compatible
 		pin: 9,
-		tempProbe: 0,
+
+		// Associated sensor in `sensors` list. Will be used to calculate fan speed with speedCurve.
+		sensor: &sensors[0],
+		// Curve used to calculate fan speed in Auto mode
 		speedCurve: defaultCurve,
-		speedCurveLength: sizeof(defaultCurve),
-		low: 30, high: 80,
+		// Number of points on speedCurve
+		speedCurveLength: defaultCurveLength,
 	},
 };
 size_t fansLength = sizeof(fans) / sizeof(Fan);

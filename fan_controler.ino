@@ -1,62 +1,50 @@
+#include "config.h"
 // #include "buzzer.h"
 // #include "speed_curve.h"
 
-enum class Mode
-{
-	Auto,
-	Low,
-	High,
-	Full,
-};
-const char* modeToStr(size_t mode){
-	switch((Mode)mode){
-		case Mode::Auto: return "Auto";
-		case Mode::Low:  return "Low";
-		case Mode::High: return "High";
-		case Mode::Full: return "Full";
-	}
-	return "UNKNOWN";
-}
 
-Mode mode;
-double* temp;
 
 
 
 void setup() {
 	Serial.begin(9600);
-	pinMode(LED_BUILTIN, OUTPUT);
-	analogWrite(LED_BUILTIN, 0);
+	pinMode(ledPin, OUTPUT);
+	analogWrite(ledPin, 0);
 
-	pinMode(PIN_BUZZER, OUTPUT);
-	pinMode(PIN_BUTTON, INPUT_PULLUP);
+	pinMode(buzzerPin, OUTPUT);
+	pinMode(buttonPin, INPUT_PULLUP);
 
-	for(auto& probe : probes){
-		pinMode(probe.pin, INPUT);
+	for(size_t i = 0 ; i < sensorsLength ; i++){
+		auto&& sensor = sensors[i];
+
+		pinMode(sensor.pin, INPUT);
 	}
-	temp = new double[probesLength];
 
-	for(auto& fan : fans){
+	for(size_t i = 0 ; i < fansLength ; i++){
+		auto&& fan = fans[i];
+
 		pinMode(fan.pin, OUTPUT);
 	}
 }
 
 
-size_t counter = 0;
 
 void loop() {
+	static size_t counter = 0;
+	static Mode mode = Mode::Auto;
 
-	counter = (counter + 1 ) % 20;
 
-	for(size_t i = 0 ; i < probesLength ; i++){
-		temp[i] = (temp[i] * (double)counter + TempProbe_getTemp(probes[0])) / ((double)counter + 1.0);
+	// average temp over a second
+	for(size_t i = 0 ; i < sensorsLength ; i++){
+		sensors[i].measureTemp();
 	}
 
-	if(digitalRead(PIN_BUTTON) == 0){
+	// Handle button actions
+	if(digitalRead(buttonPin) == 0){
 		auto startPress = millis();
 		bool longPress = false;
 
-		while(digitalRead(PIN_BUTTON) == 0){
+		while(digitalRead(buttonPin) == 0){
 			auto duration = millis() - startPress;
 			if(duration > 500){
 				longPress = true;
@@ -65,73 +53,78 @@ void loop() {
 		}
 
 		if(longPress){
+			// Change mode
 			mode = (Mode)(((int)mode + 1) % 4);
-			switch(mode){
-				case Mode::Auto: beep(".-");   break;
-				case Mode::Low:  beep(".-.."); break;
-				case Mode::High: beep("...."); break;
-				case Mode::Full: beep("..-."); break;
-				default: beep("----------");
+			if(buzzerPin != -1){
+				switch(mode){
+					case Mode::Auto: beep(".-");   break;
+					case Mode::Low:  beep(".-.."); break;
+					case Mode::High: beep("...."); break;
+					case Mode::Full: beep("..-."); break;
+					default: beep("----------");
+				}
 			}
 
+			// Will force fan speed set immediately with current temp values
 			counter = 0;
+
+			//Switch off warning led
+			digitalWrite(ledPin, false);
 
 			Serial.print("Mode  ");
 			Serial.println(modeToStr((size_t)mode));
 		}
 		else{
+			// Display temps & speeds
 			Serial.print("Temp ");
-			for(size_t i = 0 ; i < probesLength ; i++){
+			for(size_t i = 0 ; i < sensorsLength ; i++){
+				auto&& sensor = sensors[i];
+
 				Serial.print(" ");
-				Serial.print(probes[i].name);
+				Serial.print(sensor.name);
 				Serial.print(": ");
-				Serial.print(temp[i]);
+				Serial.print(sensor.smoothedTemp());
 			}
 			Serial.println("");
 
 			Serial.print("Speed");
 			for(size_t i = 0 ; i < fansLength ; i++){
+				auto&& fan = fans[i];
+
 				Serial.print(" ");
-				Serial.print(fans[i].name);
+				Serial.print(fan.name);
 				Serial.print(": ");
-				Serial.print(Fan_calcSpeed(fans[i], temp[i]));
+				Serial.print(fan.currentSpeed());
 			}
 			Serial.println("");
 
 			// Beep first temp
-			beepNumber(temp[0]);
+			if(buzzerPin != -1)
+				beepNumber(sensors[0].smoothedTemp());
 		}
 
 		// Wait release
-		while(digitalRead(PIN_BUTTON) == 0){}
+		while(digitalRead(buttonPin) == 0){}
 	}
 
-
+	// Set fan speeds
 	if(counter == 0){
-		switch(mode){
-			case Mode::Auto:
-				for(size_t i = 0 ; i < fansLength ; i++){
-					analogWrite(fans[i].pin, Fan_calcSpeed(fans[i], temp[fans[i].tempProbe]) / 100.0 * 255);
-				}
-				break;
-			case Mode::Low:
-				for(size_t i = 0 ; i < fansLength ; i++){
-					analogWrite(fans[i].pin, (fans[i].low / 100.0) * 255);
-				}
-				break;
-			case Mode::High:
-				for(size_t i = 0 ; i < fansLength ; i++){
-					analogWrite(fans[i].pin, (fans[i].high / 100.0) * 255);
-				}
-				break;
-			case Mode::Full:
-				for(size_t i = 0 ; i < fansLength ; i++){
-					analogWrite(fans[i].pin, 255);
-				}
-				break;
+		for(size_t i = 0 ; i < fansLength ; i++){
+			fans[i].setModeSpeed(mode);
+		}
 
+		if(mode == Mode::Low){
+			// Blink warning led
+			static bool ledPinState = false;
+			digitalWrite(ledPin, ledPinState = !ledPinState);
 		}
 	}
 
+	counter = (counter + 1 ) % 20;
+	if(counter == 0){
+		for(size_t i = 0 ; i < sensorsLength ; i++){
+			sensors[i].resetTemp();
+		}
+	}
 	delay(50);
 }

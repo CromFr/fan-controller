@@ -11,14 +11,14 @@ void beep(const char* signal){
 
 		switch(c){
 			case '.':
-				digitalWrite(PIN_BUZZER, 1);
+				digitalWrite(buzzerPin, 1);
 				delay(30);
-				digitalWrite(PIN_BUZZER, 0);
+				digitalWrite(buzzerPin, 0);
 				break;
 			case '-':
-				digitalWrite(PIN_BUZZER, 1);
+				digitalWrite(buzzerPin, 1);
 				delay(150);
-				digitalWrite(PIN_BUZZER, 0);
+				digitalWrite(buzzerPin, 0);
 				break;
 			default:
 				delay(100);

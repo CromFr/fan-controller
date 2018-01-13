@@ -1,6 +1,7 @@
 #ifndef __INCLUDED_CONFIG__
 #define __INCLUDED_CONFIG__
 #include "fan.h"
+#include "display.h"
 
 int buttonPin = 2;
 int buzzerPin = A1;// beep beep beep. Must be analog or PWM compatible. -1 to disable beeping.

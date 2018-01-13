@@ -1,7 +1,6 @@
 #ifndef __INCLUDED_FAN__
 #define __INCLUDED_FAN__
 
-#include "config.h"
 
 
 
@@ -12,8 +11,8 @@ enum class Mode
 	High,
 	Full,
 };
-const char* modeToStr(size_t mode){
-	switch((Mode)mode){
+const char* modeToStr(Mode mode){
+	switch(mode){
 		case Mode::Auto: return "Auto";
 		case Mode::Low:  return "Low";
 		case Mode::High: return "High";

@@ -72,7 +72,7 @@ void loop() {
 			digitalWrite(ledPin, false);
 
 			Serial.print("Mode  ");
-			Serial.println(modeToStr((size_t)mode));
+			Serial.println(modeToStr(mode));
 		}
 		else{
 			// Display temps & speeds

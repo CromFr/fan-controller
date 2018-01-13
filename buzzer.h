@@ -1,7 +1,8 @@
 #ifndef __INCLUDED_BUZZER__
 #define __INCLUDED_BUZZER__
 
-#include "config.h"
+
+extern int buzzerPin;
 
 
 

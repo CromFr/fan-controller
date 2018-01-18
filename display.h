@@ -65,6 +65,7 @@ public:
 		this->fansLength = fansLength;
 
 		hwdisplay.begin(SSD1306_SWITCHCAPVCC, SSD1306_I2C_ADDRESS);
+		hwdisplay.dim(1);
 	}
 
 	void update(Mode mode){
@@ -102,7 +103,7 @@ public:
 			// ex: 42.1°C
 			//
 			int tempChars = (sensor.smoothedTemp() < 0 ? 1 : 0) // sign
-				+ log10(fabs(sensor.smoothedTemp())) + 1 //  digits > 0
+				+ (fabs(sensor.smoothedTemp()) < 1 ? 1 : log10(fabs(sensor.smoothedTemp())) + 1) //  digits > 0
 				+  2;// dot + decimals
 			hwdisplay.setCursor(SSD1306_LCDWIDTH - 6 * (tempChars + 2), y);
 			hwdisplay.print(sensor.smoothedTemp(), 1);

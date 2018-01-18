@@ -33,7 +33,7 @@ size_t defaultCurveLength = sizeof(defaultCurve) / sizeof(Fan::Point);
 Fan fans[] = {
 	Fan{
 		// Fan name used when sending its speed to serial
-		name: "WaterRadiator",
+		name: "Front",
 		// Fan pin. Must be PWM compatible
 		pin: 9,
 
@@ -48,6 +48,8 @@ Fan fans[] = {
 size_t fansLength = sizeof(fans) / sizeof(Fan);
 
 
-
+// Display temp and fan speed to a SSD1306 display
+bool hasDisplay = true;
+// You have to modify Adafruit_SSD1306.h to configure the display (I know, its a mess)
 
 #endif

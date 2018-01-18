@@ -1,9 +1,9 @@
 #include "config.h"
-// #include "buzzer.h"
-// #include "speed_curve.h"
+#include "display.h"
+#include "buzzer.h"
 
 
-
+Display* display = nullptr;
 
 
 void setup() {
@@ -38,9 +38,12 @@ void setup() {
 
 		pinMode(fan.pin, OUTPUT);
 	}
+
+
+	if(hasDisplay){
+		display = new Display(sensors, sensorsLength, fans, fansLength);
+	}
 }
-
-
 
 void loop() {
 	static size_t counter = 0;
@@ -130,6 +133,11 @@ void loop() {
 			// Blink warning led
 			static bool ledPinState = false;
 			digitalWrite(ledPin, ledPinState = !ledPinState);
+		}
+
+		if(display != nullptr){
+			//Update display
+			display->update(mode);
 		}
 	}
 

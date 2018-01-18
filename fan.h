@@ -93,25 +93,35 @@ public:
 	}
 
 	int setSpeed(int speed){
-		speed = speed;
-		analogWrite(pin, speed / 100.0 * 255);
+		this->speed = speed;
+
+		switch (pin) {
+			case 9:
+				OCR1A = speed / 100.0 * 320;
+				break;
+			case 10:
+				OCR1B = speed / 100.0 * 320;
+				break;
+			default:
+				analogWrite(pin, speed / 100.0 * 255);
+				break;
+		}
 	}
 
 
 	int setModeSpeed(Mode mode){
 		switch(mode){
 			case Mode::Auto:
-				speed = calcSpeed(sensor->smoothedTemp());
-				analogWrite(pin, speed / 100.0 * 255);
+				setSpeed(calcSpeed(sensor->smoothedTemp()));
 				break;
 			case Mode::Low:
-				analogWrite(pin, (minSpeed / 100.0) * 255);
+				setSpeed(minSpeed);
 				break;
 			case Mode::High:
-				analogWrite(pin, (maxSpeed / 100.0) * 255);
+				setSpeed(maxSpeed);
 				break;
 			case Mode::Full:
-				analogWrite(pin, 255);
+				setSpeed(100);
 				break;
 		}
 	}

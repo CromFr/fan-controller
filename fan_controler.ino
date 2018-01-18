@@ -8,6 +8,19 @@
 
 void setup() {
 	Serial.begin(9600);
+
+	// Setup 25KHz PWM on pin 9 and 10 to match the intel fan specs
+	// Configure Timer 1 for PWM @ 25 kHz.
+	TCCR1A = 0;           // undo the configuration done by...
+	TCCR1B = 0;           // ...the Arduino core library
+	TCNT1  = 0;           // reset timer
+	TCCR1A = _BV(COM1A1)  // non-inverted PWM on ch. A
+	       | _BV(COM1B1)  // same on ch; B
+	       | _BV(WGM11);  // mode 10: ph. correct PWM, TOP = ICR1
+	TCCR1B = _BV(WGM13)   // ditto
+	       | _BV(CS10);   // prescaler = 1
+	ICR1   = 320;         // TOP = 320
+
 	pinMode(ledPin, OUTPUT);
 	analogWrite(ledPin, 0);
 
@@ -19,7 +32,7 @@ void setup() {
 
 		pinMode(sensor.pin, INPUT);
 	}
-
+	// Set the PWM pins as output.
 	for(size_t i = 0 ; i < fansLength ; i++){
 		auto&& fan = fans[i];
 

@@ -47,10 +47,10 @@ static uint8_t bitmapFan[3][7] = {
 	}
 };
 static uint8_t bitmapDegree[] = {
-	0b00011000,
-	0b00100100,
-	0b00100100,
-	0b00011000,
+	0b00110000,
+	0b01001000,
+	0b01001000,
+	0b00110000,
 	0b00000000,
 	0b00000000,
 	0b00000000,
@@ -68,18 +68,22 @@ public:
 	}
 
 	void update(Mode mode){
+		//Notes
+		// Characters are 5 * 7
+		// They are spaced 6 * 8
+
 		hwdisplay.clearDisplay();
 		hwdisplay.setTextSize(1);
 		hwdisplay.setTextColor(WHITE);
 
 		size_t y = 0;
-		hwdisplay.setCursor(0, y);
 
 		if(mode == Mode::Low){
 			hwdisplay.fillRect(0, 0, SSD1306_LCDWIDTH, 8, WHITE);
 			hwdisplay.setTextColor(BLACK);
 		}
-		hwdisplay.print("Mode: ");
+		hwdisplay.setCursor(SSD1306_LCDWIDTH / 2.0 - (5 + strlen(modeToStr(mode))) * 6.0 / 2.0, y);
+		hwdisplay.print("Mode:");
 		hwdisplay.print(modeToStr(mode));
 		hwdisplay.setTextColor(WHITE);
 
@@ -90,16 +94,20 @@ public:
 		for(size_t i = 0 ; i < sensorsLength ; i++){
 			auto&& sensor = sensors[i];
 
-			hwdisplay.drawBitmap(0, y, bitmapTemp, 8, 7, 1);
+			hwdisplay.drawBitmap(0, y, bitmapTemp, 7, 7, 1);
 
-			hwdisplay.setCursor(12, y);
+			hwdisplay.setCursor(9, y);
 			hwdisplay.print(sensor.name);
 
 			// ex: 42.1°C
-			hwdisplay.setCursor(SSD1306_LCDWIDTH - 8 * ((int)log10(sensor.smoothedTemp()) + 4), y);
+			//
+			int tempChars = (sensor.smoothedTemp() < 0 ? 1 : 0) // sign
+				+ log10(fabs(sensor.smoothedTemp())) + 1 //  digits > 0
+				+  2;// dot + decimals
+			hwdisplay.setCursor(SSD1306_LCDWIDTH - 6 * (tempChars + 2), y);
 			hwdisplay.print(sensor.smoothedTemp(), 1);
 			hwdisplay.print(" C");
-			hwdisplay.drawBitmap(SSD1306_LCDWIDTH - 17, y, bitmapDegree, 8, 7, 1);
+			hwdisplay.drawBitmap(SSD1306_LCDWIDTH - 12, y, bitmapDegree, 5, 7, 1);
 
 			y += 8;
 
@@ -108,16 +116,18 @@ public:
 				if(fan.sensor == &sensor){
 
 					if(fan.currentSpeed() > 0)
-						hwdisplay.drawBitmap(4, y, bitmapFan[cnt % 3], 8, 7, 1);
+						hwdisplay.drawBitmap(6, y, bitmapFan[cnt % 3], 7, 7, 1);
 					else
-						hwdisplay.drawBitmap(4, y, bitmapFan[0], 8, 7, 1);
+						hwdisplay.drawBitmap(6, y, bitmapFan[0], 7, 7, 1);
 
 
-					hwdisplay.setCursor(16, y);
+					hwdisplay.setCursor(15, y);
 					hwdisplay.print(fan.name);
 
 					// ex: 42%
-					hwdisplay.setCursor(SSD1306_LCDWIDTH - 8 * ((int)log10(fan.currentSpeed()) + 2), y);
+					int fanChars = (fan.currentSpeed() == 0 ? 0 : log10(fan.currentSpeed())) + 1; //  digits
+
+					hwdisplay.setCursor(SSD1306_LCDWIDTH - 6 * (fanChars + 1), y);
 					hwdisplay.print(fan.currentSpeed());
 					hwdisplay.print("%");
 

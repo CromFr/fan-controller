@@ -75,32 +75,38 @@ void loop() {
 			//Switch off warning led
 			digitalWrite(ledPin, false);
 
-			Serial.print("Mode  ");
+			Serial.print("Mode;");
 			Serial.println(modeToStr(mode));
 		}
 		else{
 			// Display temps & speeds
-			Serial.print("Temp ");
+			Serial.print("Mode;");
+			Serial.println(modeToStr(mode));
+
 			for(size_t i = 0 ; i < sensorsLength ; i++){
-				auto&& sensor = sensors[i];
-
-				Serial.print(" ");
+				auto& sensor = sensors[i];
+				Serial.print("Sensor;");
 				Serial.print(sensor.name);
-				Serial.print(": ");
+				Serial.print(";");
 				Serial.print(sensor.smoothedTemp());
+				Serial.print("°C");
+				Serial.println("");
 			}
-			Serial.println("");
 
-			Serial.print("Speed");
 			for(size_t i = 0 ; i < fansLength ; i++){
-				auto&& fan = fans[i];
-
-				Serial.print(" ");
+				auto& fan = fans[i];
+				Serial.print("Fan;");
 				Serial.print(fan.def->name);
-				Serial.print(": ");
+				Serial.print(";");
 				Serial.print(fan.currentSpeed());
+				Serial.print("%");
+				if(fan.hasTacho()){
+					Serial.print(";");
+					Serial.print(fan.getRPM());
+					Serial.print("RPM");
+				}
+				Serial.println("");
 			}
-			Serial.println("");
 
 			// Beep first temp
 			if(buzzer.isActive())

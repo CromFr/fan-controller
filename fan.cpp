@@ -106,7 +106,7 @@ void Fan::setModeSpeed(Mode mode){
 	}
 }
 
-uint16_t Fan::getRPM(){
+uint16_t Fan::getRPM() const {
 	//   2 pulse per revolution
 	return (*tachoCounter / 2) * 60.0  / ((millis() - tachoTimer) / 1000.0);
 }

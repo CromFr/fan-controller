@@ -6,6 +6,7 @@
 
 class Buzzer {
 public:
+	Buzzer(){};
 	Buzzer(uint8_t pin);
 
 	void setup();

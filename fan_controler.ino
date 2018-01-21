@@ -6,6 +6,7 @@
 
 
 Fan* fans;
+Buzzer buzzer;
 Display display;
 
 
@@ -16,6 +17,8 @@ void setup() {
 	analogWrite(ledPin, 0);
 
 	pinMode(buttonPin, INPUT_PULLUP);
+
+	buzzer = Buzzer(buzzerPin);
 
 	for(size_t i = 0 ; i < sensorsLength ; i++)
 		sensors[i].setup();

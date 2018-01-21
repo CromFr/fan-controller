@@ -2,11 +2,7 @@
 
 const uint8_t buttonPin = 0;
 const uint8_t ledPin = 12   ;//Blink when in low speed mode
-
-
-const Buzzer buzzer = Buzzer{
-	pin: 8 // beep beep beep. Must be analog or PWM compatible. -1 to disable beeping.
-};
+const uint8_t buzzerPin = 8; // beep beep beep. Must be analog or PWM compatible. -1 to disable beeping.
 
 // List of temperature sensors
 Sensor sensors[] = {

@@ -57,7 +57,7 @@ static const PROGMEM uint8_t bitmapDegree[] = {
 uint8_t canvasData[128 * 64];
 
 
-void dimDisplay(bool dim){
+static void setContrast(uint8_t dim){
 
 	extern void  (*ssd1306_endTransmission)();
 	extern void  (*ssd1306_sendByte)(uint8_t data);
@@ -65,7 +65,7 @@ void dimDisplay(bool dim){
 
 	ssd1306_commandStart();
 	ssd1306_sendByte(0x81);
-	ssd1306_sendByte(dim? 0 : 0x9F);
+	ssd1306_sendByte(dim);
 	ssd1306_endTransmission();
 }
 
@@ -81,7 +81,7 @@ Display::Display(Sensor* sensors, size_t sensorsLength, Fan* fans, size_t fansLe
 	ssd1306_printFixed(ssd1306_displayWidth() / 2 - 5 * CHAR_WIDTH,  ssd1306_displayHeight() / 2 - CHAR_HEIGHT / 2,
 		"Booting...", STYLE_NORMAL);
 
-	dimDisplay(true);
+	setContrast(0);
 }
 
 void Display::update(Mode mode){

@@ -5,23 +5,23 @@ const uint8_t ledPin = 12   ;//Blink when in low speed mode
 const uint8_t buzzerPin = 8; // beep beep beep. Must be analog or PWM compatible. -1 to disable beeping.
 
 // List of temperature sensors
-Sensor sensors[] = {
-	Sensor{
+const SensorDef sensorDefs[] = {
+	{
 		// Sensor name used when sending its temperature to serial
 		name: "Water",
 		// Sensor pin. Must be analog
 		pin: A2,
 	},
-	Sensor{
+	{
 		name: "Air",
 		pin: A3,
 	},
 };
-const uint8_t sensorsLength = sizeof(sensors) / sizeof(Sensor);
+const uint8_t sensorsLength = sizeof(sensorDefs) / sizeof(SensorDef);
 
 
 // This is an example curve for speed control
-static SpeedCurvePoint defaultCurve[] = {
+static SpeedCurve defaultCurve = {
 	//  temp °C => speed %
 	{ 30.0, 0 },
 	{ 30.0, 30 },
@@ -41,8 +41,8 @@ const FanDef fanDefs[] = {
 		// Tachometer fan pin. This pin MUST support interruptions
 		tachoPin: 2,
 
-		// Associated sensor in `sensors` list. Will be used to calculate fan speed with speedCurve.
-		sensor: &sensors[0],
+		// Associated sensor index in `sensorDefs` list. Will be used to calculate fan speed with speedCurve.
+		sensorIndex: 0,
 		// Curve used to calculate fan speed in Auto mode
 		speedCurve: defaultCurve,
 		// Number of points on speedCurve
@@ -52,7 +52,7 @@ const FanDef fanDefs[] = {
 		name: "Top rad",
 		pin: 10,
 		tachoPin: 3,
-		sensor: &sensors[0],
+		sensorIndex: 0,
 		speedCurve: defaultCurve,
 		speedCurveLength: defaultCurveLength,
 	},
@@ -60,14 +60,17 @@ const FanDef fanDefs[] = {
 		name: "Rear fan",
 		pin: 11,
 		tachoPin: -1,
-		sensor: &sensors[0],
-		speedCurve: defaultCurve,
-		speedCurveLength: defaultCurveLength,
+		sensorIndex: 1,
+		speedCurve: SpeedCurve{
+			{ 30.0, 30 },
+			{ 40.0, 70 },
+			{ 45.0, 100 },
+		},
+		speedCurveLength: 3,
 	},
 };
 const uint8_t fansLength = sizeof(fanDefs) / sizeof(FanDef);
 
 
-// Display temp and fan speed to a SSD1306 display
+// Is SSD1306 128x64 display connected?
 const bool hasDisplay = true;
-// You have to modify Adafruit_SSD1306.h to configure the display (I know, its a mess)

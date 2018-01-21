@@ -3,11 +3,17 @@
 
 #include <Arduino.h>
 
+
+struct SensorDef{
+	char* name;
+	uint8_t pin;
+};
+
+
 class Sensor {
 public:
-	Sensor(const char* name, uint8_t pin);
-
-	void setup();
+	Sensor(){}
+	Sensor(const SensorDef* def);
 
 	double rawTemp() const;
 
@@ -17,8 +23,7 @@ public:
 	void measureTemp();
 	void resetTemp();
 
-	const char* name;
-	const uint8_t pin;
+	const SensorDef* def;
 
 private:
 	double temp = 0.0;

@@ -86,7 +86,6 @@ void Display::update(Mode mode){
 
 	if(cnt == 0){
 		ssd1306_clearScreen();
-
 	}
 
 	uint8_t x = 0;
@@ -121,7 +120,7 @@ void Display::update(Mode mode){
 			// Icon
 			ssd1306_drawBitmap(0, y / 8, 7, 8, bitmapTemp);
 			// Name
-			ssd1306_printFixed(9, y, sensor.name, STYLE_NORMAL);
+			ssd1306_printFixed(9, y, sensor.def->name, STYLE_NORMAL);
 			// °
 			ssd1306_drawBitmap(ssd1306_displayWidth() - 2 * CHAR_WIDTH + 1, y / 8, 5, 8, bitmapDegree);
 			// C
@@ -138,7 +137,7 @@ void Display::update(Mode mode){
 
 		for(uint8_t j = 0 ; j < fansLength ; j++){
 			auto& fan = fans[j];
-			if(fan.def->sensor == &sensor){
+			if(fan.def->sensorIndex == i){
 				if(cnt == 0){
 					ssd1306_clearBlock(0, y / 8, ssd1306_displayWidth(), y / 8 + 1);
 

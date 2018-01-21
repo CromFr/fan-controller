@@ -26,13 +26,15 @@ struct SpeedCurvePoint {
 	uint8_t speed;// 0 -> 100
 };
 
+typedef SpeedCurvePoint SpeedCurve[];
+
 struct FanDef{
 	const char* name;
 
 	uint8_t pin;
 	uint8_t tachoPin;
 
-	Sensor* sensor;
+	uint8_t sensorIndex;
 
 	SpeedCurvePoint* speedCurve;
 	uint8_t speedCurveLength;
@@ -43,7 +45,7 @@ class Fan {
 public:
 	Fan(){};
 
-	Fan(const FanDef* _def);
+	Fan(const FanDef* _def, const Sensor* sensor);
 
 
 	uint8_t currentSpeed() const {
@@ -65,6 +67,7 @@ public:
 
 
 	const FanDef* def = nullptr;
+	const Sensor* sensor;
 private:
 	unsigned long tachoTimer;
 	volatile uint16_t* tachoCounter;

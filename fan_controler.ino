@@ -5,6 +5,7 @@
 #include "config.h"
 
 
+Sensor* sensors;
 Fan* fans;
 Buzzer buzzer;
 Display display;
@@ -20,12 +21,13 @@ void setup() {
 
 	buzzer = Buzzer(buzzerPin);
 
+	sensors = new Sensor[sensorsLength];
 	for(size_t i = 0 ; i < sensorsLength ; i++)
-		sensors[i].setup();
+		sensors[i] = Sensor(&sensorDefs[i]);
 
 	fans = new Fan[fansLength];
 	for(size_t i = 0 ; i < fansLength ; i++){
-		fans[i] = Fan(&fanDefs[i]);
+		fans[i] = Fan(&fanDefs[i], &sensors[fanDefs[i].sensorIndex]);
 	}
 
 	if(hasDisplay){
@@ -86,7 +88,7 @@ void loop() {
 			for(size_t i = 0 ; i < sensorsLength ; i++){
 				auto& sensor = sensors[i];
 				Serial.print("Sensor;");
-				Serial.print(sensor.name);
+				Serial.print(sensor.def->name);
 				Serial.print(";");
 				Serial.print(sensor.smoothedTemp());
 				Serial.print("°C");

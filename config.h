@@ -13,7 +13,7 @@ extern const uint8_t ledPin;
 
 extern const uint8_t buzzerPin;
 
-extern Sensor sensors[];
+extern const SensorDef sensorDefs[];
 extern const uint8_t sensorsLength;
 
 extern const FanDef fanDefs[];

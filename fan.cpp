@@ -20,7 +20,7 @@ static void (*onTachoCbs[TACHOMETER_MAX])() = {
 static uint8_t onTachoCbsCnt = 0;
 
 
-Fan::Fan(const FanDef* _def): def(_def) {
+Fan::Fan(const FanDef* _def, const Sensor* sensor): def(_def), sensor(sensor) {
 
 	// Determinate min & max speed
 	minSpeed = 100;
@@ -92,7 +92,7 @@ void Fan::setSpeed(uint8_t speed){
 void Fan::setModeSpeed(Mode mode){
 	switch(mode){
 		case Mode::Auto:
-			setSpeed(calcSpeed(def->sensor->smoothedTemp()));
+			setSpeed(calcSpeed(sensor->smoothedTemp()));
 			break;
 		case Mode::Low:
 			setSpeed(minSpeed);

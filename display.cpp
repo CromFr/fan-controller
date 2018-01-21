@@ -1,8 +1,6 @@
 #include "display.h"
 
 #include <ssd1306.h>
-// #include <ssd1306_interface.h>
-void ssd1306_sendCommand(uint8_t command);
 #include <nano_gfx.h>
 #include <font6x8.h>
 
@@ -53,9 +51,6 @@ static const PROGMEM uint8_t bitmapDegree[] = {
 	0b00001001,
 	0b00000110,
 };
-
-uint8_t canvasData[128 * 64];
-
 
 static void setContrast(uint8_t dim){
 
@@ -143,14 +138,18 @@ void Display::update(Mode mode){
 
 		for(uint8_t j = 0 ; j < fansLength ; j++){
 			auto& fan = fans[j];
-			if(fan.sensor == &sensor){
+			if(fan.def->sensor == &sensor){
 				if(cnt == 0){
 					ssd1306_clearBlock(0, y / 8, ssd1306_displayWidth(), y / 8 + 1);
 
 					// Name
-					ssd1306_printFixed(15, y, fan.name, STYLE_NORMAL);
+					ssd1306_printFixed(15, y, fan.def->name, STYLE_NORMAL);
+					// |
+					if(fan.hasTacho()){
+						ssd1306_printFixed(ssd1306_displayWidth() - (5) * CHAR_WIDTH, y, "|", STYLE_NORMAL);
+					}
 					// %
-					ssd1306_printFixed(ssd1306_displayWidth() - 1 * CHAR_WIDTH, y, "%", STYLE_NORMAL);
+					ssd1306_printFixed(ssd1306_displayWidth() - CHAR_WIDTH, y, "%", STYLE_NORMAL);
 				}
 
 				// Icon
@@ -163,6 +162,17 @@ void Display::update(Mode mode){
 				sprintf(buffer, "%3d", fan.currentSpeed());
 				ssd1306_printFixed(ssd1306_displayWidth() - (3 + 1) * CHAR_WIDTH, y,
 					buffer, STYLE_NORMAL);
+
+				//RPM
+				if(fan.hasTacho()){
+
+					sprintf(buffer, "%4d", fan.getRPM());
+
+					ssd1306_printFixed(ssd1306_displayWidth() - (5 + 3 + 1) * CHAR_WIDTH, y,
+						buffer, STYLE_NORMAL);
+
+					fan.resetTacho();
+				}
 
 				y += CHAR_HEIGHT;
 			}

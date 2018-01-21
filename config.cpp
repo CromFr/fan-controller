@@ -11,8 +11,10 @@ const Buzzer buzzer = Buzzer{
 // List of temperature sensors
 Sensor sensors[] = {
 	Sensor{
-		name: "Water", // Sensor name used when sending its temperature to serial
-		pin: A2, // Sensor pin. Must be analog
+		// Sensor name used when sending its temperature to serial
+		name: "Water",
+		// Sensor pin. Must be analog
+		pin: A2,
 	},
 	Sensor{
 		name: "Air",
@@ -23,23 +25,25 @@ const uint8_t sensorsLength = sizeof(sensors) / sizeof(Sensor);
 
 
 // This is an example curve for speed control
-static Fan::Point defaultCurve[] = {
+static SpeedCurvePoint defaultCurve[] = {
 	//  temp °C => speed %
-	Fan::Point{ 30, 0 },
-	Fan::Point{ 30, 30 },
-	Fan::Point{ 45, 60 },
-	Fan::Point{ 50, 80 },
-	Fan::Point{ 55, 100 },
+	{ 30.0, 0 },
+	{ 30.0, 30 },
+	{ 45.0, 60 },
+	{ 50.0, 80 },
+	{ 55.0, 100 },
 };
-static uint8_t defaultCurveLength = sizeof(defaultCurve) / sizeof(Fan::Point);
+static uint8_t defaultCurveLength = sizeof(defaultCurve) / sizeof(SpeedCurvePoint);
 
 // List of fans
-Fan fans[] = {
-	Fan{
+const FanDef fanDefs[] = {
+	{
 		// Fan name used when sending its speed to serial
-		name: "Front rad 240",
+		name: "Front rad",
 		// Fan pin. Must be PWM compatible
 		pin: 9,
+		// Tachometer fan pin. This pin MUST support interruptions
+		tachoPin: 2,
 
 		// Associated sensor in `sensors` list. Will be used to calculate fan speed with speedCurve.
 		sensor: &sensors[0],
@@ -47,41 +51,25 @@ Fan fans[] = {
 		speedCurve: defaultCurve,
 		// Number of points on speedCurve
 		speedCurveLength: defaultCurveLength,
-
-		tachoPin: -1,
 	},
-	Fan{
-		// Fan name used when sending its speed to serial
-		name: "Top rad 360",
-		// Fan pin. Must be PWM compatible
+	{
+		name: "Top rad",
 		pin: 10,
-
-		// Associated sensor in `sensors` list. Will be used to calculate fan speed with speedCurve.
+		tachoPin: 3,
 		sensor: &sensors[0],
-		// Curve used to calculate fan speed in Auto mode
 		speedCurve: defaultCurve,
-		// Number of points on speedCurve
 		speedCurveLength: defaultCurveLength,
-
-		tachoPin: -1,
 	},
-	Fan{
-		// Fan name used when sending its speed to serial
-		name: "Rear 120",
-		// Fan pin. Must be PWM compatible
+	{
+		name: "Rear fan",
 		pin: 11,
-
-		// Associated sensor in `sensors` list. Will be used to calculate fan speed with speedCurve.
-		sensor: &sensors[0],
-		// Curve used to calculate fan speed in Auto mode
-		speedCurve: defaultCurve,
-		// Number of points on speedCurve
-		speedCurveLength: defaultCurveLength,
-
 		tachoPin: -1,
+		sensor: &sensors[0],
+		speedCurve: defaultCurve,
+		speedCurveLength: defaultCurveLength,
 	},
 };
-const uint8_t fansLength = sizeof(fans) / sizeof(Fan);
+const uint8_t fansLength = sizeof(fanDefs) / sizeof(FanDef);
 
 
 // Display temp and fan speed to a SSD1306 display

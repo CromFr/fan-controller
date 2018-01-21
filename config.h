@@ -16,7 +16,7 @@ extern const Buzzer buzzer;
 extern Sensor sensors[];
 extern const uint8_t sensorsLength;
 
-extern Fan fans[];
+extern const FanDef fanDefs[];
 extern const uint8_t fansLength;
 
 

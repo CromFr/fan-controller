@@ -12,31 +12,31 @@ const char* modeToStr(Mode mode){
 }
 
 // This can handle 2 tachometers
-volatile uint16_t tachoCounters[TACHOMETER_MAX] = {0};
-void (*onTachoCbs[TACHOMETER_MAX])() = {
+static volatile uint16_t tachoCounters[TACHOMETER_MAX] = {0};
+static void (*onTachoCbs[TACHOMETER_MAX])() = {
 	[](){ tachoCounters[0]++; },
 	[](){ tachoCounters[1]++; },
 };
-uint8_t onTachoCbsCnt = 0;
+static uint8_t onTachoCbsCnt = 0;
 
 
+Fan::Fan(const FanDef* _def): def(_def) {
 
-Fan::Fan(const char* name, uint8_t pin, size_t sensor, Point* speedCurve, size_t speedCurveLength, uint8_t tachoPin = -1)
-: name(name), pin(pin), sensor(sensor), speedCurve(speedCurve), speedCurveLength(speedCurveLength), tachoPin(tachoPin){
-
+	// Determinate min & max speed
 	minSpeed = 100;
 	maxSpeed = 0;
-	for(int j = 0; j < speedCurveLength; j++){
-		auto&& speed = speedCurve[j].speed;
+	for(int j = 0; j < def->speedCurveLength; j++){
+		auto& speed = def->speedCurve[j].speed;
 
 		if(speed > 0 && speed < minSpeed)
 			minSpeed = speed;
 		if(speed < 100 && speed > maxSpeed)
 			maxSpeed = speed;
 	}
-}
-void Fan::setup(){
-	if(pin == 9 || pin == 10){
+
+	// Configure PWM
+	static bool configured25KHz = false;
+	if((def->pin == 9 || def->pin == 10) && !configured25KHz){
 		// Setup 25KHz PWM on pin 9 and 10 to match the intel fan specs
 		// Configure Timer 1 for PWM @ 25 kHz.
 		TCCR1A = 0;           // undo the configuration done by...
@@ -48,29 +48,34 @@ void Fan::setup(){
 		TCCR1B = _BV(WGM13)   // ditto
 		       | _BV(CS10);   // prescaler = 1
 		ICR1   = 320;         // TOP = 320
+
+		configured25KHz = true;
 	}
 
-	pinMode(pin, OUTPUT);
+	// Configure pins
+	pinMode(def->pin, OUTPUT);
 
-	if(tachoPin != -1){
+	// Configure tachometer if any
+	if(def->tachoPin != (uint8_t)-1){
+		Serial.println("Added tachometer ");
 		if(onTachoCbsCnt >= TACHOMETER_MAX){
 			Serial.println("Warning: cannot handle so many tachometers. Please edit TACHOMETER_MAX in " __FILE__);
 		}
 		else {
 			tachoCounter = &tachoCounters[onTachoCbsCnt];
 
-			attachInterrupt(digitalPinToInterrupt(tachoPin), onTachoCbs[onTachoCbsCnt], RISING);
+			pinMode(def->tachoPin, INPUT);
+			attachInterrupt(digitalPinToInterrupt(def->tachoPin), onTachoCbs[onTachoCbsCnt], RISING);
 			onTachoCbsCnt++;
 		}
 		resetTacho();
 	}
 }
 
-
 void Fan::setSpeed(uint8_t speed){
 	this->speed = speed;
 
-	switch (pin) {
+	switch (def->pin) {
 		case 9:
 			OCR1A = speed / 100.0 * 320;
 			break;
@@ -78,7 +83,7 @@ void Fan::setSpeed(uint8_t speed){
 			OCR1B = speed / 100.0 * 320;
 			break;
 		default:
-			analogWrite(pin, speed / 100.0 * 255);
+			analogWrite(def->pin, speed / 100.0 * 255);
 			break;
 	}
 }
@@ -87,7 +92,7 @@ void Fan::setSpeed(uint8_t speed){
 void Fan::setModeSpeed(Mode mode){
 	switch(mode){
 		case Mode::Auto:
-			setSpeed(calcSpeed(sensor->smoothedTemp()));
+			setSpeed(calcSpeed(def->sensor->smoothedTemp()));
 			break;
 		case Mode::Low:
 			setSpeed(minSpeed);
@@ -108,16 +113,16 @@ uint16_t Fan::getRPM(){
 
 
 uint8_t Fan::calcSpeed(double temp) const {
-	Point* start = nullptr;
-	Point* end = nullptr;
+	SpeedCurvePoint* start = nullptr;
+	SpeedCurvePoint* end = nullptr;
 
-	for(int i = 0 ; i < speedCurveLength ; i++){
+	for(int i = 0 ; i < def->speedCurveLength ; i++){
 
-		if(speedCurve[i].temp > temp){
-			end = &speedCurve[i];
+		if(def->speedCurve[i].temp > temp){
+			end = &def->speedCurve[i];
 			break;
 		}
-		start = &speedCurve[i];
+		start = &def->speedCurve[i];
 	}
 
 	if(start == nullptr){

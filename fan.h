@@ -21,17 +21,29 @@ extern void (*onTachoCbs[TACHOMETER_MAX])();
 extern uint8_t onTachoCbsCnt;
 
 
+struct SpeedCurvePoint {
+	double temp;
+	uint8_t speed;// 0 -> 100
+};
+
+struct FanDef{
+	const char* name;
+
+	uint8_t pin;
+	uint8_t tachoPin;
+
+	Sensor* sensor;
+
+	SpeedCurvePoint* speedCurve;
+	uint8_t speedCurveLength;
+};
 
 
 class Fan {
 public:
-	struct Point {
-		int8_t temp;
-		uint8_t speed;// 0 -> 100
-	};
+	Fan(){};
 
-	Fan(const char* name, uint8_t pin, size_t sensor, Point* speedCurve, size_t speedCurveLength, uint8_t tachoPin = -1);
-	void setup();
+	Fan(const FanDef* _def);
 
 
 	uint8_t currentSpeed() const {
@@ -39,26 +51,20 @@ public:
 	}
 
 	void setSpeed(uint8_t speed);
-
-
 	void setModeSpeed(Mode mode);
 
+	bool hasTacho() const {
+		return def->tachoPin != (uint8_t)-1;
+	}
 	void resetTacho(){
-		tachoCounter = 0;
+		*tachoCounter = 0;
 		tachoTimer = millis();
 	}
-	uint16_t getRPM();
+	uint16_t getRPM() const;
 
 
 
-	const char* name;
-
-	const uint8_t pin;
-	const uint8_t tachoPin;
-	const Sensor* sensor;
-
-	const Point* speedCurve;
-	const uint8_t speedCurveLength;
+	const FanDef* def = nullptr;
 private:
 	unsigned long tachoTimer;
 	volatile uint16_t* tachoCounter;

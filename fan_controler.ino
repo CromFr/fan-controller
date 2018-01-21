@@ -1,19 +1,16 @@
 #include <Arduino.h>
-#include "config.h"
 #include "display.h"
 #include "buzzer.h"
 
+#include "config.h"
 
 
+Fan* fans;
 Display display;
 
 
 void setup() {
 	Serial.begin(9600);
-
-	if(hasDisplay){
-		display = Display(sensors, sensorsLength, fans, fansLength);
-	}
 
 	pinMode(ledPin, OUTPUT);
 	analogWrite(ledPin, 0);
@@ -23,9 +20,14 @@ void setup() {
 	for(size_t i = 0 ; i < sensorsLength ; i++)
 		sensors[i].setup();
 
-	// Set the PWM pins as output.
-	for(size_t i = 0 ; i < fansLength ; i++)
-		fans[i].setup();
+	fans = new Fan[fansLength];
+	for(size_t i = 0 ; i < fansLength ; i++){
+		fans[i] = Fan(&fanDefs[i]);
+	}
+
+	if(hasDisplay){
+		display = Display(sensors, sensorsLength, fans, fansLength);
+	}
 }
 
 void loop() {
@@ -91,7 +93,7 @@ void loop() {
 				auto&& fan = fans[i];
 
 				Serial.print(" ");
-				Serial.print(fan.name);
+				Serial.print(fan.def->name);
 				Serial.print(": ");
 				Serial.print(fan.currentSpeed());
 			}

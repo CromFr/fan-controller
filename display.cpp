@@ -144,10 +144,7 @@ void Display::update(Mode mode){
 
 					// Name
 					ssd1306_printFixed(15, y, fan.def->name, STYLE_NORMAL);
-					// |
-					if(fan.hasTacho()){
-						ssd1306_printFixed(ssd1306_displayWidth() - (5) * CHAR_WIDTH, y, "|", STYLE_NORMAL);
-					}
+
 					// %
 					ssd1306_printFixed(ssd1306_displayWidth() - CHAR_WIDTH, y, "%", STYLE_NORMAL);
 				}
@@ -166,11 +163,11 @@ void Display::update(Mode mode){
 				//RPM
 				if(fan.hasTacho()){
 					auto rpm = fan.getRPM();
+					auto rpmSave = rpm;
 					if(lastStateInit == false){
-						auto rpmSave = rpm;
-						rpm = (rpm + lastState.rpm[i]) / 2;
-						lastState.rpm = rpmSave;
+						rpm = (rpm + lastState.rpm[j]) / 2;
 					}
+					lastState.rpm[j] = rpmSave;
 
 					int digits = rpm == 0 ? 1 : (log10(rpm) + 1);
 
@@ -178,8 +175,6 @@ void Display::update(Mode mode){
 						sprintf(buffer, "%4u", rpm);
 					else
 						sprintf(buffer, "%3uk", rpm / 1000ul);
-
-					// snprintf(buffer, 4, "%4u", fan.getRPM());
 
 					ssd1306_printFixed(ssd1306_displayWidth() - (5 + 3 + 1) * CHAR_WIDTH, y,
 						buffer, STYLE_NORMAL);

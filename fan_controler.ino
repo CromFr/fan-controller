@@ -52,7 +52,7 @@ void loop() {
 
 		while(digitalRead(buttonPin) == 0){
 			auto duration = millis() - startPress;
-			if(duration > 500){
+			if(duration > 300){
 				longPress = true;
 				break;
 			}

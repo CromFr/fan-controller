@@ -25,7 +25,9 @@ private:
 
 	struct {
 		Mode mode;
+		uint16_t* rpm;
 	} lastState;
+	bool lastStateInit = true;
 };
 
 

@@ -12,7 +12,7 @@ const char* modeToStr(Mode mode){
 }
 
 // This can handle 2 tachometers
-static volatile uint16_t tachoCounters[TACHOMETER_MAX] = {0};
+static volatile uint32_t tachoCounters[TACHOMETER_MAX] = {0};
 static void (*onTachoCbs[TACHOMETER_MAX])() = {
 	[](){ tachoCounters[0]++; },
 	[](){ tachoCounters[1]++; },
@@ -64,7 +64,7 @@ Fan::Fan(const FanDef* _def, const Sensor* sensor): def(_def), sensor(sensor) {
 		else {
 			tachoCounter = &tachoCounters[onTachoCbsCnt];
 
-			pinMode(def->tachoPin, INPUT);
+			pinMode(def->tachoPin, INPUT_PULLUP);
 			attachInterrupt(digitalPinToInterrupt(def->tachoPin), onTachoCbs[onTachoCbsCnt], RISING);
 			onTachoCbsCnt++;
 		}
@@ -108,7 +108,7 @@ void Fan::setModeSpeed(Mode mode){
 
 uint16_t Fan::getRPM() const {
 	//   2 pulse per revolution
-	return (*tachoCounter / 2) * 60.0  / ((millis() - tachoTimer) / 1000.0);
+	return (*tachoCounter / 2ul) * (60.0  / ((millis() - tachoTimer) / 1000.0));
 }
 
 

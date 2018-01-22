@@ -72,11 +72,12 @@ Display::Display(Sensor* sensors, size_t sensorsLength, Fan* fans, size_t fansLe
 
 	ssd1306_128x64_i2c_init();
 	ssd1306_clearScreen();
+	setContrast(0);
 	ssd1306_setFixedFont(ssd1306xled_font6x8);
 	ssd1306_printFixed(ssd1306_displayWidth() / 2 - 5 * CHAR_WIDTH,  ssd1306_displayHeight() / 2 - CHAR_HEIGHT / 2,
 		"Booting...", STYLE_NORMAL);
 
-	setContrast(0);
+	lastState.rpm = new uint16_t[fansLength];
 }
 
 void Display::update(Mode mode){
@@ -91,7 +92,7 @@ void Display::update(Mode mode){
 	uint8_t x = 0;
 	uint8_t y = 0;
 
-	if(mode != lastState.mode || cnt == 0){
+	if(mode != lastState.mode || lastStateInit){
 
 		if(mode == Mode::Low)
 			ssd1306_negativeMode();
@@ -164,8 +165,21 @@ void Display::update(Mode mode){
 
 				//RPM
 				if(fan.hasTacho()){
+					auto rpm = fan.getRPM();
+					if(lastStateInit == false){
+						auto rpmSave = rpm;
+						rpm = (rpm + lastState.rpm[i]) / 2;
+						lastState.rpm = rpmSave;
+					}
 
-					sprintf(buffer, "%4d", fan.getRPM());
+					int digits = rpm == 0 ? 1 : (log10(rpm) + 1);
+
+					if(digits <= 4)
+						sprintf(buffer, "%4u", rpm);
+					else
+						sprintf(buffer, "%3uk", rpm / 1000ul);
+
+					// snprintf(buffer, 4, "%4u", fan.getRPM());
 
 					ssd1306_printFixed(ssd1306_displayWidth() - (5 + 3 + 1) * CHAR_WIDTH, y,
 						buffer, STYLE_NORMAL);
@@ -179,4 +193,5 @@ void Display::update(Mode mode){
 	}
 
 	cnt++;
+	lastStateInit = false;
 }

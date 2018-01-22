@@ -16,9 +16,6 @@ const char* modeToStr(Mode mode);
 
 // This can handle 2 tachometers
 #define TACHOMETER_MAX 2
-extern volatile uint16_t tachoCounters[TACHOMETER_MAX];
-extern void (*onTachoCbs[TACHOMETER_MAX])();
-extern uint8_t onTachoCbsCnt;
 
 
 struct SpeedCurvePoint {
@@ -70,7 +67,7 @@ public:
 	const Sensor* sensor;
 private:
 	unsigned long tachoTimer;
-	volatile uint16_t* tachoCounter;
+	volatile uint32_t* tachoCounter;
 
 	uint8_t speed, minSpeed, maxSpeed;
 

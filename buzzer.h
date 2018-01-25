@@ -20,6 +20,8 @@ public:
 
 	void beepNumber(int number) const;
 
+	void set(bool on) const;
+
 private:
 	uint8_t pin;
 };

@@ -7,6 +7,7 @@
 struct SensorDef{
 	char* name;
 	uint8_t pin;
+	double maxTemp;
 };
 
 

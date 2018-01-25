@@ -11,10 +11,13 @@ const SensorDef sensorDefs[] = {
 		name: "Water",
 		// Sensor pin. Must be analog
 		pin: A2,
+		// Max temperature, that will make the buzzer beep as warning. Set to NAN to disable
+		maxTemp: 50.0,
 	},
 	{
 		name: "Air",
 		pin: A3,
+		maxTemp: NAN,
 	},
 };
 const uint8_t sensorsLength = sizeof(sensorDefs) / sizeof(SensorDef);

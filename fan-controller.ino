@@ -129,16 +129,39 @@ void loop() {
 			fans[i].setModeSpeed(mode);
 		}
 
-		if(mode == Mode::Low){
-			// Blink warning led
-			static bool ledPinState = false;
-			digitalWrite(ledPin, ledPinState = !ledPinState);
-		}
-
 		if(hasDisplay){
 			//Update display
 			display.update(mode);
 		}
+
+
+		for(size_t i = 0 ; i < fansLength ; i++){
+			if(fans[i].hasTacho()){
+				fans[i].resetTacho();
+			}
+		}
+
+		bool hasTempWarning = false;
+		for(size_t i = 0 ; i < sensorsLength ; i++){
+			auto& maxTemp = sensors[i].def->maxTemp;
+			if(!isnan(maxTemp) && sensors[i].smoothedTemp() >= maxTemp){
+				hasTempWarning = true;
+			}
+		}
+
+		static bool state = false;
+		state = !state;
+		if(mode == Mode::Low || hasTempWarning){
+			// Blink warning led
+			digitalWrite(ledPin, state);
+		}
+
+		if(hasTempWarning){
+			// Buzz if dangerous temp
+			if(buzzer.isActive()) buzzer.set(state);
+			else buzzer.set(false);
+		}
+
 	}
 
 	counter = (counter + 1 ) % 20;

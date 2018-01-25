@@ -54,3 +54,6 @@ void Buzzer::beepNumber(int number) const {
 }
 
 
+void Buzzer::set(bool on) const {
+	digitalWrite(pin, on);
+}

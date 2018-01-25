@@ -178,8 +178,6 @@ void Display::update(Mode mode){
 
 					ssd1306_printFixed(ssd1306_displayWidth() - (5 + 3 + 1) * CHAR_WIDTH, y,
 						buffer, STYLE_NORMAL);
-
-					fan.resetTacho();
 				}
 
 				y += CHAR_HEIGHT;

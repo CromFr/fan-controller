@@ -26,8 +26,7 @@ const uint8_t sensorsLength = sizeof(sensorDefs) / sizeof(SensorDef);
 // This is an example curve for speed control
 static SpeedCurve defaultCurve = {
 	//  temp °C => speed %
-	{ 30.0, 0 },
-	{ 30.0, 30 },
+	{ 30.0, 20 },
 	{ 45.0, 60 },
 	{ 50.0, 80 },
 	{ 55.0, 100 },
@@ -40,9 +39,9 @@ const FanDef fanDefs[] = {
 		// Fan name used when sending its speed to serial
 		name: "Front rad",
 		// Fan pin. Must be PWM compatible
-		pin: 9,
+		pin: 11,
 		// Tachometer fan pin. This pin MUST support interruptions
-		tachoPin: 2,
+		tachoPin: 3,
 
 		// Associated sensor index in `sensorDefs` list. Will be used to calculate fan speed with speedCurve.
 		sensorIndex: 0,
@@ -61,7 +60,7 @@ const FanDef fanDefs[] = {
 	},
 	{
 		name: "Rear fan",
-		pin: 11,
+		pin: 9,
 		tachoPin: -1,
 		sensorIndex: 1,
 		speedCurve: SpeedCurve{

@@ -62,12 +62,16 @@ void loop() {
 			// Change mode
 			mode = (Mode)(((int)mode + 1) % 4);
 			if(buzzer.isActive()){
-				switch(mode){
-					case Mode::Auto: buzzer.beep(".-");   break;
-					case Mode::Low:  buzzer.beep(".-.."); break;
-					case Mode::High: buzzer.beep("...."); break;
-					case Mode::Full: buzzer.beep("..-."); break;
-					default: buzzer.beep("----------");
+				if(hasDisplay)
+					buzzer.beep(".");
+				else{
+					switch(mode){
+						case Mode::Auto: buzzer.beep(".-");   break;
+						case Mode::Low:  buzzer.beep(".-.."); break;
+						case Mode::High: buzzer.beep("...."); break;
+						case Mode::Full: buzzer.beep("..-."); break;
+						default: buzzer.beep("----------");
+					}
 				}
 			}
 

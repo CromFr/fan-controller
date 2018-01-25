@@ -27,7 +27,7 @@ private:
 		Mode mode;
 		uint16_t* rpm;
 	} lastState;
-	bool lastStateInit = true;
+	bool init = true;
 };
 
 

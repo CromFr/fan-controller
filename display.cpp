@@ -85,14 +85,14 @@ void Display::update(Mode mode){
 	// Characters are 5 * 7
 	// They are spaced 6 * 8
 
-	if(cnt == 0){
+	if(init){
 		ssd1306_clearScreen();
 	}
 
 	uint8_t x = 0;
 	uint8_t y = 0;
 
-	if(mode != lastState.mode || lastStateInit){
+	if(mode != lastState.mode || init){
 
 		if(mode == Mode::Low)
 			ssd1306_negativeMode();
@@ -116,7 +116,7 @@ void Display::update(Mode mode){
 	for(uint8_t i = 0 ; i < sensorsLength ; i++){
 		auto& sensor = sensors[i];
 
-		if(cnt == 0){
+		if(init){
 			ssd1306_clearBlock(0, y / 8, ssd1306_displayWidth(), y / 8 + 1);
 			// Icon
 			ssd1306_drawBitmap(0, y / 8, 7, 8, bitmapTemp);
@@ -139,7 +139,7 @@ void Display::update(Mode mode){
 		for(uint8_t j = 0 ; j < fansLength ; j++){
 			auto& fan = fans[j];
 			if(fan.def->sensorIndex == i){
-				if(cnt == 0){
+				if(init){
 					ssd1306_clearBlock(0, y / 8, ssd1306_displayWidth(), y / 8 + 1);
 
 					// Name
@@ -164,7 +164,7 @@ void Display::update(Mode mode){
 				if(fan.hasTacho()){
 					auto rpm = fan.getRPM();
 					auto rpmSave = rpm;
-					if(lastStateInit == false){
+					if(init == false){
 						rpm = (rpm + lastState.rpm[j]) / 2;
 					}
 					lastState.rpm[j] = rpmSave;
@@ -188,5 +188,5 @@ void Display::update(Mode mode){
 	}
 
 	cnt++;
-	lastStateInit = false;
+	init = false;
 }

@@ -28,7 +28,7 @@ static SpeedCurve defaultCurve = {
 	//  temp °C => speed %
 	{ 30.0, 20 },
 	{ 45.0, 60 },
-	{ 50.0, 80 },
+	{ 50.0, 70 },
 	{ 55.0, 100 },
 };
 static uint8_t defaultCurveLength = sizeof(defaultCurve) / sizeof(SpeedCurvePoint);
@@ -41,7 +41,7 @@ const FanDef fanDefs[] = {
 		// Fan pin. Must be PWM compatible
 		pin: 11,
 		// Tachometer fan pin. This pin MUST support interruptions
-		tachoPin: 3,
+		tachoPin: 2,
 
 		// Associated sensor index in `sensorDefs` list. Will be used to calculate fan speed with speedCurve.
 		sensorIndex: 0,

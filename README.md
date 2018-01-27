@@ -1,6 +1,9 @@
 
 # Arduino fan controller
 
+![](board/setup.jpg)
+![](board/board-0.jpg)
+
 # Features
 - Control fan speeds by using the following modes:
     + _Auto_: Use temperature->speed curves for each fan
@@ -11,7 +14,9 @@
     + Fan speed control mode
     + Sensor temperature
     + Fan speeds percent (with RPM if tachometer is available)
-- Buzzer: Can beep to transmit control mode or temperature (useful if no display. Can be deactivated)
+- Buzzer:
+    - When there is no display: beep to transmit control mode and temperature
+    - Beep when temperature is critical
 - Warning led: Blink when in low speed mode (as temperature may rise)
 - Button:
     + Short button press
@@ -32,10 +37,11 @@
     + Sensor list: pin
     + Fan list: pin, speed curve, associated sensor
     + SSD1306 display connection
+    + ...
 
-# Usage
 
-- 
+# Board
 
+Perfboard design & photos in [board/](board/)
 
 

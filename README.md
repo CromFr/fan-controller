@@ -32,6 +32,10 @@
 
 # Setup
 
+- Install dependencies
+	+ On GNU/Linux platforms, execute `./arduino-install-libs.sh`
+	+ On Windows platform, using the Arduino Library manager, install the following libraries:
+		* `ssd1306` by Alexey Dynda
 - Edit `config.cpp` to configure the different settings:
     + Pinout
     + Sensor list: pin

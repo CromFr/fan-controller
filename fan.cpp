@@ -57,7 +57,6 @@ Fan::Fan(const FanDef* _def, const Sensor* sensor): def(_def), sensor(sensor) {
 
 	// Configure tachometer if any
 	if(def->tachoPin != (uint8_t)-1){
-		Serial.println("Added tachometer ");
 		if(onTachoCbsCnt >= TACHOMETER_MAX){
 			Serial.println("Warning: cannot handle so many tachometers. Please edit TACHOMETER_MAX in " __FILE__);
 		}

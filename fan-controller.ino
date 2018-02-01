@@ -161,6 +161,9 @@ void loop() {
 			// Blink warning led
 			digitalWrite(ledPin, state);
 		}
+		else{
+			digitalWrite(ledPin, 0);
+		}
 
 		if(hasTempWarning){
 			// Buzz if dangerous temp

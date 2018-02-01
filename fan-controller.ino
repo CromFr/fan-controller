@@ -142,9 +142,15 @@ void loop() {
 		}
 
 		bool hasTempWarning = false;
+		bool hasDisconnectedSensor = false;
 		for(size_t i = 0 ; i < sensorsLength ; i++){
+			auto temp = sensors[i].smoothedTemp();
+			if(temp < -273.0){ //-273.1 means the sensor is disconnected
+				hasDisconnectedSensor = true;
+			}
+
 			auto& maxTemp = sensors[i].def->maxTemp;
-			if(!isnan(maxTemp) && sensors[i].smoothedTemp() >= maxTemp){
+			if(!isnan(maxTemp) && temp >= maxTemp){
 				hasTempWarning = true;
 			}
 		}
@@ -161,7 +167,9 @@ void loop() {
 			if(buzzer.isActive()) buzzer.set(state);
 			else buzzer.set(false);
 		}
-
+		else if(hasDisconnectedSensor){
+			buzzer.beep(".");
+		}
 	}
 
 	counter = (counter + 1 ) % 20;

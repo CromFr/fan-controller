@@ -22,11 +22,11 @@ void setup() {
 	buzzer = Buzzer(buzzerPin);
 
 	sensors = new Sensor[sensorsLength];
-	for(size_t i = 0 ; i < sensorsLength ; i++)
+	for(uint8_t i = 0 ; i < sensorsLength ; i++)
 		sensors[i] = Sensor(&sensorDefs[i]);
 
 	fans = new Fan[fansLength];
-	for(size_t i = 0 ; i < fansLength ; i++){
+	for(uint8_t i = 0 ; i < fansLength ; i++){
 		fans[i] = Fan(&fanDefs[i], &sensors[fanDefs[i].sensorIndex]);
 	}
 
@@ -36,12 +36,12 @@ void setup() {
 }
 
 void loop() {
-	static size_t counter = 0;
+	static uint8_t counter = 0;
 	static Mode mode = Mode::Auto;
 
 
 	// average temp over a second
-	for(size_t i = 0 ; i < sensorsLength ; i++){
+	for(uint8_t i = 0 ; i < sensorsLength ; i++){
 		sensors[i].measureTemp();
 	}
 
@@ -89,7 +89,7 @@ void loop() {
 			Serial.print("Mode;");
 			Serial.println(modeToStr(mode));
 
-			for(size_t i = 0 ; i < sensorsLength ; i++){
+			for(uint8_t i = 0 ; i < sensorsLength ; i++){
 				auto& sensor = sensors[i];
 				Serial.print("Sensor;");
 				Serial.print(sensor.def->name);
@@ -99,7 +99,7 @@ void loop() {
 				Serial.println("");
 			}
 
-			for(size_t i = 0 ; i < fansLength ; i++){
+			for(uint8_t i = 0 ; i < fansLength ; i++){
 				auto& fan = fans[i];
 				Serial.print("Fan;");
 				Serial.print(fan.def->name);
@@ -125,59 +125,77 @@ void loop() {
 
 	// Set fan speeds
 	if(counter == 0){
-		for(size_t i = 0 ; i < fansLength ; i++){
+		// Fan control
+		for(uint8_t i = 0 ; i < fansLength ; i++){
 			fans[i].setModeSpeed(mode);
 		}
 
 		if(hasDisplay){
-			//Update display
+			// Update display
 			display.update(mode);
 		}
 
+		bool ledBlink = false;
+		bool ledFlash = false;
+		bool buzzerLongBeep = false;
+		bool buzzerShortBeep = false;
 
-		for(size_t i = 0 ; i < fansLength ; i++){
-			if(fans[i].hasTacho()){
-				fans[i].resetTacho();
-			}
-		}
 
-		bool hasTempWarning = false;
-		bool hasDisconnectedSensor = false;
-		for(size_t i = 0 ; i < sensorsLength ; i++){
+		// Sensor temp warning & malfunction detection
+		for(uint8_t i = 0 ; i < sensorsLength ; i++){
 			auto temp = sensors[i].smoothedTemp();
-			if(temp < -273.0){ //-273.1 means the sensor is disconnected
-				hasDisconnectedSensor = true;
+			if(temp < -273.0 || temp > 273.0){
+				// -273.1 means the sensor is disconnected
+				// +273.1 means the sensor is short circuited
+				buzzerShortBeep = true;
 			}
 
 			auto& maxTemp = sensors[i].def->maxTemp;
 			if(!isnan(maxTemp) && temp >= maxTemp){
-				hasTempWarning = true;
+				buzzerLongBeep = true;
 			}
 		}
 
-		static bool state = false;
-		state = !state;
-		if(mode == Mode::Low || hasTempWarning){
-			// Blink warning led
-			digitalWrite(ledPin, state);
+		if(mode == Mode::Low)
+			ledBlink = true;
+
+		static bool stateSwitch = false;
+		stateSwitch = !stateSwitch;
+
+		// Led
+		if(ledBlink)
+			digitalWrite(ledPin, stateSwitch);
+		else if(ledFlash){
+			digitalWrite(ledPin, 1);
+			delay(50);
+			digitalWrite(ledPin, 0);
 		}
 		else{
 			digitalWrite(ledPin, 0);
 		}
 
-		if(hasTempWarning){
+		// Buzzer
+		if(buzzerLongBeep){
 			// Buzz if dangerous temp
-			if(buzzer.isActive()) buzzer.set(state);
+			if(buzzer.isActive()) buzzer.set(stateSwitch);
 			else buzzer.set(false);
 		}
-		else if(hasDisconnectedSensor){
+		else if(buzzerShortBeep){
 			buzzer.beep(".");
+		}
+
+
+		// Tachometer counters reset
+		for(uint8_t i = 0 ; i < fansLength ; i++){
+			if(fans[i].hasTacho()){
+				fans[i].resetTacho();
+			}
 		}
 	}
 
 	counter = (counter + 1 ) % 20;
 	if(counter == 0){
-		for(size_t i = 0 ; i < sensorsLength ; i++){
+		for(uint8_t i = 0 ; i < sensorsLength ; i++){
 			sensors[i].resetTemp();
 		}
 	}

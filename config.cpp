@@ -74,5 +74,26 @@ const FanDef fanDefs[] = {
 const uint8_t fansLength = sizeof(fanDefs) / sizeof(FanDef);
 
 
+static const PROGMEM uint8_t deltaIcon[] = {
+	0b00000000,
+	0b01100000,
+	0b01011000,
+	0b01000110,
+	0b01011000,
+	0b01100000,
+	0b00000000,
+};
+const CustomDef customDefs[] = {
+	{
+		name: "Delta",
+		icon: deltaIcon,
+		value: [](char* buffer, const Sensor* sensors, const Fan* fans){
+			auto val = sensors[0].smoothedTemp() - sensors[1].smoothedTemp();
+			dtostrf(val,5,1,buffer);
+		},
+	},
+};
+const uint8_t customLength = sizeof(customDefs) / sizeof(CustomDef);
+
 // Is SSD1306 128x64 display connected?
 const bool hasDisplay = true;

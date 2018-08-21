@@ -1,4 +1,5 @@
 #include "display.h"
+#include "config.h"
 
 #include <ssd1306.h>
 #include <nano_gfx.h>
@@ -9,13 +10,13 @@
 
 
 static const PROGMEM uint8_t bitmapTemp[] = {
-	0b000000000,
-	0b000000000,
-	0b001100000,
-	0b011111111,
-	0b011111111,
-	0b001100000,
-	0b000000000,
+	0b00000000,
+	0b00000000,
+	0b01100000,
+	0b11111111,
+	0b11111111,
+	0b01100000,
+	0b00000000,
 };
 static const PROGMEM uint8_t bitmapFan[3][7] = {
 	{
@@ -50,6 +51,15 @@ static const PROGMEM uint8_t bitmapDegree[] = {
 	0b00001001,
 	0b00001001,
 	0b00000110,
+};
+static const PROGMEM uint8_t deltaIcon[] = {
+	0b11000000,
+	0b10110000,
+	0b10001100,
+	0b10000011,
+	0b10001100,
+	0b10110000,
+	0b11000000,
 };
 
 static void setContrast(uint8_t dim){
@@ -183,6 +193,23 @@ void Display::update(Mode mode){
 				y += CHAR_HEIGHT;
 			}
 		}
+	}
+
+	for(uint8_t i = 0 ; i < customLength ; i++){
+		auto& custom = customDefs[i];
+		if(init){
+			ssd1306_clearBlock(0, y / 8, ssd1306_displayWidth(), y / 8 + 1);
+			// Icon
+			ssd1306_drawBitmap(0, y / 8, 7, 8, custom.icon);
+			// Name
+			ssd1306_printFixed(9, y, custom.name, STYLE_NORMAL);
+		}
+
+		custom.value(buffer, sensors, fans);
+		ssd1306_printFixed(ssd1306_displayWidth() - (strlen(buffer)) * CHAR_WIDTH, y,
+			buffer, STYLE_NORMAL);
+
+		y += CHAR_HEIGHT;
 	}
 
 	cnt++;

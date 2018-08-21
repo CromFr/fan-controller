@@ -6,6 +6,7 @@
 #include "fan.h"
 #include "sensor.h"
 #include "display.h"
+#include "custom.h"
 
 extern const uint8_t buttonPin;
 extern const uint8_t ledPin;
@@ -19,6 +20,8 @@ extern const uint8_t sensorsLength;
 extern const FanDef fanDefs[];
 extern const uint8_t fansLength;
 
+extern const CustomDef customDefs[];
+extern const uint8_t customLength;
 
 extern const bool hasDisplay;
 

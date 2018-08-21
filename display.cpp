@@ -62,17 +62,6 @@ static const PROGMEM uint8_t deltaIcon[] = {
 	0b11000000,
 };
 
-static void setContrast(uint8_t dim){
-
-	extern void  (*ssd1306_endTransmission)();
-	extern void  (*ssd1306_sendByte)(uint8_t data);
-	extern void (*ssd1306_commandStart)();
-
-	ssd1306_commandStart();
-	ssd1306_sendByte(0x81);
-	ssd1306_sendByte(dim);
-	ssd1306_endTransmission();
-}
 
 Display::Display(Sensor* sensors, size_t sensorsLength, Fan* fans, size_t fansLength){
 	this->sensors = sensors;
@@ -82,7 +71,7 @@ Display::Display(Sensor* sensors, size_t sensorsLength, Fan* fans, size_t fansLe
 
 	ssd1306_128x64_i2c_init();
 	ssd1306_clearScreen();
-	setContrast(0);
+	ssd1306_setContrast(0);
 	ssd1306_setFixedFont(ssd1306xled_font6x8);
 	ssd1306_printFixed(ssd1306_displayWidth() / 2 - 5 * CHAR_WIDTH,  ssd1306_displayHeight() / 2 - CHAR_HEIGHT / 2,
 		"Booting...", STYLE_NORMAL);

@@ -49,6 +49,8 @@ const FanDef fanDefs[] = {
 		speedCurve: defaultCurve,
 		// Number of points on speedCurve
 		speedCurveLength: defaultCurveLength,
+		// true to start the fan at 100% for half a second
+		kickStart: false,
 	},
 	{
 		name: "Top rad",
@@ -57,6 +59,7 @@ const FanDef fanDefs[] = {
 		sensorIndex: 0,
 		speedCurve: defaultCurve,
 		speedCurveLength: defaultCurveLength,
+		kickStart: false,
 	},
 	{
 		name: "Rear fan",
@@ -69,6 +72,20 @@ const FanDef fanDefs[] = {
 			{ 45.0, 100 },
 		},
 		speedCurveLength: 3,
+		kickStart: false,
+	},
+	{
+		name: "Bot fan",
+		pin: 6,
+		tachoPin: -1,
+		sensorIndex: 1,
+		speedCurve: SpeedCurve{
+			{ 30.0, 15 },
+			{ 40.0, 20 },
+			{ 45.0, 50 },
+		},
+		speedCurveLength: 3,
+		kickStart: true,
 	},
 };
 const uint8_t fansLength = sizeof(fanDefs) / sizeof(FanDef);

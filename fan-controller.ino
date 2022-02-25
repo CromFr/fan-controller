@@ -9,6 +9,7 @@ Sensor* sensors;
 Fan* fans;
 Buzzer buzzer;
 Display display;
+bool kickStart;
 
 
 void setup() {
@@ -33,12 +34,16 @@ void setup() {
 	if(hasDisplay){
 		display = Display(sensors, sensorsLength, fans, fansLength);
 	}
+
+	kickStart = true;
 }
 
 void loop() {
 	static uint8_t counter = 0;
 	static Mode mode = Mode::Auto;
 
+	if(kickStart && millis() > 500)
+		kickStart = false;
 
 	// average temp over a second
 	for(uint8_t i = 0 ; i < sensorsLength ; i++){
@@ -127,7 +132,10 @@ void loop() {
 	if(counter == 0){
 		// Fan control
 		for(uint8_t i = 0 ; i < fansLength ; i++){
-			fans[i].setModeSpeed(mode);
+			if(kickStart && fans[i].def->kickStart)
+				fans[i].setSpeed(100);
+			else
+				fans[i].setModeSpeed(mode);
 		}
 
 		if(hasDisplay){

@@ -35,6 +35,8 @@ struct FanDef{
 
 	SpeedCurvePoint* speedCurve;
 	uint8_t speedCurveLength;
+
+	bool kickStart;
 };
 
 
